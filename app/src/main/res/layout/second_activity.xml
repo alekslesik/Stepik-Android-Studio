@@ -3,11 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+<!--   поле ввода текста-->
     <EditText
         android:id="@+id/act2_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+<!--    кнопка-->
     <Button
         android:id="@+id/act2_button"
         android:layout_width="match_parent"

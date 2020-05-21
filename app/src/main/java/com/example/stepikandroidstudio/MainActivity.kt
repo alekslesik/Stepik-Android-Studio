@@ -23,6 +23,10 @@ class MainActivity : AppCompatActivity() {
         первый колбек который будет вызван при открытии нашего экрана;
         коллбек будет вызван гарантированно;
     */
+
+    //делаем переменную класса посмотреть lateinit!!!
+    lateinit var vText:TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -31,26 +35,44 @@ class MainActivity : AppCompatActivity() {
 
         //параметр - имя класса(тип), id из разметки
         //результат работы ф - ссылка на класс TextView
-        val vText=findViewById<TextView>(R.id.act1_text)
+        vText = findViewById<TextView>(R.id.act1_text)
 
         //задать цвет текста
         vText.setTextColor(0xFFFF0000.toInt())
 
         //установить перехватчик нажатий на элемент
-        vText.setOnClickListener{
-            Log.e("tag","НАЖАТА КНОПКА")
+        vText.setOnClickListener {
+            Log.e("tag", "НАЖАТА КНОПКА")
 
             //код для открытия SecondActivity. создаем intent
+            val i = Intent(this, SecondActivity::class.java)
 
-            val i=Intent(this,SecondActivity::class.java)
+            // передаем с интентом в SecondActivity текст Hello word
+            i.putExtra("tag1", vText.text)
 
             //передаем intent в startActivity. Launch a new activity
             // startActivity (Intent intent,Bundle options)
-            startActivity(i)
+            //startActivity(i) или если ждем результат от activity2 то
+            startActivityForResult(i,0)
         }
-
-        Log.v("tag","Был запущен onCreate")
+        Log.v("tag", "Был запущен onCreate")
     }
+
+    //колбек для возвращаемых данных
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        //проверяем вернулось ли что нибудь или нет
+        if(data!=null) {
+            //извлекаем из данных data строку
+            val str=data.getStringExtra("tag2")
+            // и применяем ее в наш текст
+            //кладем в переменную класса нашу строку
+            vText.text=str
+
+        }
+    }
+
 
     //экран стал виден пользователю (можно проигнорировать в 99% случаях)
     override fun onStart() {
