@@ -32,14 +32,12 @@ class MainActivity : AppCompatActivity() {
 
         //задает UI который будет изображен на экране
         setContentView(R.layout.activity_main)
-
         //параметр - имя класса(тип), id из разметки
         //результат работы ф - ссылка на класс TextView
-        vText = findViewById<TextView>(R.id.act1_text)
 
+        vText = findViewById<TextView>(R.id.act1_text)
         //задать цвет текста
         vText.setTextColor(0xFFFF0000.toInt())
-
         //установить перехватчик нажатий на элемент
         vText.setOnClickListener {
             Log.e("tag", "НАЖАТА КНОПКА")
