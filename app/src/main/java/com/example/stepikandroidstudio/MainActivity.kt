@@ -1,6 +1,7 @@
 package com.example.stepikandroidstudio
 
 import android.content.Intent
+import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -49,9 +50,25 @@ class MainActivity : AppCompatActivity() {
             i.putExtra("tag1", vText.text)
 
             //передаем intent в startActivity. Launch a new activity
-            // startActivity (Intent intent,Bundle options)
+            //startActivity (Intent intent,Bundle options)
             //startActivity(i) или если ждем результат от activity2 то
-            startActivityForResult(i,0)
+            startActivityForResult(i, 0)
+
+            //Классический метод создания потока (так делать не надо).Создаем поток threat
+//            val t = object : Thread() {
+//                //!!посмотреть run
+//                override fun run() {
+//                    //TODO обращение в сеть
+//                    //после того как сделаем обращение в сеть, возвращаемся в UI поток
+//                    this@MainActivity.runOnUiThread {
+//                        //тут мы можем вернуть в UI полученные данные из сети и тправить в activity
+//                    }
+//                }
+//            }
+//            //запускаем thread
+//            t.start()
+//            //см класс AT
+//            AT(this).execute()
         }
         Log.v("tag", "Был запущен onCreate")
     }
@@ -67,7 +84,6 @@ class MainActivity : AppCompatActivity() {
             // и применяем ее в наш текст
             //кладем в переменную класса нашу строку
             vText.text=str
-
         }
     }
 
@@ -100,5 +116,19 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
     }
-
 }
+
+////упрощенный способ создания потока от гугла(так тоже делать не надо)
+//class AT(val act:MainActivity): AsyncTask<String, Int, String>() {
+//    //внутри сначала переопределяем doInBackground, который открывает поток в не UI
+//    override fun doInBackground(vararg params: String?): String {
+//        //обращаемся в сеть в поток не UI и что то возвращаем
+//        return ""
+//    }
+//    //теперь переопределяем колбек который принимает результат из doInBackground и отправляет в UI
+//    override fun onPostExecute(result: String?) {
+//        super.onPostExecute(result)
+//        //тут уже можем обращаться к полям mainactivity
+//    }
+//
+//}
