@@ -6,6 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxkotlin.zipWith
 
 class MainActivity : AppCompatActivity() {
     /**
@@ -25,6 +30,9 @@ class MainActivity : AppCompatActivity() {
         коллбек будет вызван гарантированно;
     */
 
+    //создаем переменную для потоков reactivex
+    var request:Disposable?=null
+
     //делаем переменную класса посмотреть lateinit!!!
     lateinit var vText:TextView
 
@@ -35,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         //параметр - имя класса(тип), id из разметки
         //результат работы ф - ссылка на класс TextView
-
         vText = findViewById<TextView>(R.id.act1_text)
         //задать цвет текста
         vText.setTextColor(0xFFFF0000.toInt())
@@ -52,7 +59,29 @@ class MainActivity : AppCompatActivity() {
             //передаем intent в startActivity. Launch a new activity
             //startActivity (Intent intent,Bundle options)
             //startActivity(i) или если ждем результат от activity2 то
+
             startActivityForResult(i, 0)
+
+            //работа с сетью как это надо черех reactivex
+            //создаем класс, передаем лямбда ф-ию
+            val o=Observable.create<String> {
+                //в этой лямбда ф-ии делаем нужный нам запрос в сеть
+                //после получения результата из сети вызываем next и передаем туда то, что получили из сети
+                it.onNext("qq")
+                //теперь нужно выбрать в каком потоке будем исполнять, а в каком потоке получать результат
+                //в данном случае исполнение будет в каком то заранее созданном потоке io, а результат получим в нашем главном UI потоке
+                //оператор flatMap позволяет создать последюущий поток со своим Observable.create
+                //оператор zipWith позволяет делать параллельный поток
+            }.flatMap { Observable.create<String>{} }.zipWith(Observable.create<String>{})
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+
+            //запускаем наш поток где первым передаем лямда ф-ию, в которой получим результат от ooNext
+            //а вторая лямбда ф-ия обработка исключений
+            //записываем результат в переменную request и используем в колбеке onDestroy. Это нужно для предотврощения потери памяти
+            request=o.subscribe({},{
+                //тут обрабатываем ошибки
+            })
+
 
             //Классический метод создания потока (так делать не надо).Создаем поток threat
 //            val t = object : Thread() {
@@ -114,9 +143,12 @@ class MainActivity : AppCompatActivity() {
 
     //окончательно удаляется экземпляр класса системой
     override fun onDestroy() {
+        //в результате вызова dispose() наша цепочка вызовов потоков будет оборвано и все подчистится
+        request?.dispose()
         super.onDestroy()
     }
 }
+
 
 ////упрощенный способ создания потока от гугла(так тоже делать не надо)
 //class AT(val act:MainActivity): AsyncTask<String, Int, String>() {
