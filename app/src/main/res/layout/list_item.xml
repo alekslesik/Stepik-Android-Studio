@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+<!--    создал этот файл для отображения данных из массива неизвестной длины из activity_main.xml LinearLayout-->
+
+<!--    каждый TextView создается в коде com/example/stepikandroidstudio/MainActivity.kt в ф-ии showLinearLayout-->
+
+    <TextView
+        android:id="@+id/item_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content">
+    </TextView>
+
+</FrameLayout>

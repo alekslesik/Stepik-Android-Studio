@@ -5,6 +5,7 @@ import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.LinearLayout
 import android.widget.TextView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -40,6 +41,10 @@ class MainActivity : AppCompatActivity() {
     //делаем переменную класса посмотреть lateinit!!!
     lateinit var vText: TextView
 
+    //пееременная для простого отображения данных из массива
+    lateinit var vList: LinearLayout
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -47,12 +52,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         //параметр - имя класса(тип), id из разметки
         //результат работы ф - ссылка на класс TextView
-        vText = findViewById<TextView>(R.id.act1_text)
+//        vText = findViewById<TextView>(R.id.act1_text)
+        vList = findViewById<LinearLayout>(R.id.act1_list)
         //задать цвет текста
-        vText.setTextColor(0xFFFF0000.toInt())
+//        vText.setTextColor(0xFFFF0000.toInt())
         //установить перехватчик нажатий на элемент
-        vText.setOnClickListener {
-            Log.e("tag", "НАЖАТА КНОПКА")
+//        vText.setOnClickListener {
+//            Log.e("tag", "НАЖАТА КНОПКА")
 
             //код для открытия SecondActivity. создаем intent
 //            val i = Intent(this, SecondActivity::class.java)
@@ -65,13 +71,9 @@ class MainActivity : AppCompatActivity() {
             //startActivity(i) или если ждем результат от activity2 то
 
 //            startActivityForResult(i, 0)
-
-            //работа с сетью как это надо черех reactivex
-            //создаем класс, передаем лямбда ф-ию
-
             //после получения результата из сети вызываем next и передаем туда то, что получили из сети
             //it.onNext("qq")
-            //теперь нужно выбрать в каком потоке будем исполнять, а в каком потоке получать результат
+
             //в данном случае исполнение будет в каком то заранее созданном потоке io, а результат получим в нашем главном UI потоке
             //оператор flatMap позволяет создать последюущий поток со своим Observable.create
             //оператор zipWith позволяет делать параллельный поток
@@ -79,15 +81,18 @@ class MainActivity : AppCompatActivity() {
                 createRequest("https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Frss.xml")
                     //преобразовываем полученную строку в объект Feed
                     .map { Gson().fromJson(it, Feed::class.java) }
+                    //теперь нужно выбрать в каком потоке будем исполнять, а в каком потоке получать результат
                     .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 
-            //запускаем наш поток где первым передаем лямда ф-ию, в которой получим результат от ooNext
+            //запускаем наш поток где первым передаем лямда ф-ию, в которой получим результат от onNext
             //а вторая лямбда ф-ия обработка исключений
             //записываем результат в переменную request и используем в колбеке onDestroy. Это нужно для предотврощения потери памяти
             request = o.subscribe({
-                for (item in it.items) {
-                    Log.w("test", "title:${item.title}")
-                }
+                showLinearLayout(it.items)
+               for (item in it.items) {
+                   Log.w("test", "title:${item.title}")
+               }
+
             }, {
                 //тут обрабатываем ошибки
                 Log.e("test", "", it)
@@ -110,8 +115,23 @@ class MainActivity : AppCompatActivity() {
 //            t.start()
 //            //см класс AT
 //            AT(this).execute()
+//        }
+        //Log.v("tag", "Был запущен onCreate")
+    }
+
+    //функция для самого простого отображения элементов массива Feed полученного из инет запроса
+    fun showLinearLayout(feedList: ArrayList<FeedItem>) {
+        //сначала берем контекст в качестве сомого активити и берем из него инфлейтер(!!!посмотеть)
+        val inflater = layoutInflater
+        for (f in feedList) {
+            // и этому инфлейтеру сказать inflate layout list_item vList
+            val view = inflater.inflate(R.layout.list_item, vList, false)
+            val vTitle = view.findViewById<TextView>(R.id.item_title)
+            //в полученный textview задаем текст
+            vTitle.text = f.title
+            //добавляем его в гр=лавную разметку vList
+            vList.addView(view)
         }
-        Log.v("tag", "Был запущен onCreate")
     }
 
     //колбек для возвращаемых данных

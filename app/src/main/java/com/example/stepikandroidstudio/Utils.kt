@@ -5,6 +5,8 @@ import java.lang.RuntimeException
 import java.net.HttpURLConnection
 import java.net.URL
 
+//работа с сетью как это надо черех reactivex
+//создаем класс, передаем лямбда ф-ию
 fun createRequest(url:String)= Observable.create<String> {
     //в этой лямбда ф-ии делаем нужный нам запрос в сеть
     //что бы сделать запрос нужно создать url у которого открыть коннекшен
