@@ -60,47 +60,45 @@ class MainActivity : AppCompatActivity() {
 //        vText.setOnClickListener {
 //            Log.e("tag", "НАЖАТА КНОПКА")
 
-            //код для открытия SecondActivity. создаем intent
+        //код для открытия SecondActivity. создаем intent
 //            val i = Intent(this, SecondActivity::class.java)
 
-            // передаем с интентом в SecondActivity текст Hello word
+        // передаем с интентом в SecondActivity текст Hello word
 //            i.putExtra("tag1", vText.text)
 
-            //передаем intent в startActivity. Launch a new activity
-            //startActivity (Intent intent,Bundle options)
-            //startActivity(i) или если ждем результат от activity2 то
+        //передаем intent в startActivity. Launch a new activity
+        //startActivity (Intent intent,Bundle options)
+        //startActivity(i) или если ждем результат от activity2 то
 
 //            startActivityForResult(i, 0)
-            //после получения результата из сети вызываем next и передаем туда то, что получили из сети
-            //it.onNext("qq")
+        //после получения результата из сети вызываем next и передаем туда то, что получили из сети
+        //it.onNext("qq")
 
-            //в данном случае исполнение будет в каком то заранее созданном потоке io, а результат получим в нашем главном UI потоке
-            //оператор flatMap позволяет создать последюущий поток со своим Observable.create
-            //оператор zipWith позволяет делать параллельный поток
-            val o =
-                createRequest("https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Frss.xml")
-                    //преобразовываем полученную строку в объект Feed
-                    .map { Gson().fromJson(it, Feed::class.java) }
-                    //теперь нужно выбрать в каком потоке будем исполнять, а в каком потоке получать результат
-                    .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+        //в данном случае исполнение будет в каком то заранее созданном потоке io, а результат получим в нашем главном UI потоке
+        //оператор flatMap позволяет создать последюущий поток со своим Observable.create
+        //оператор zipWith позволяет делать параллельный поток
+        val o =
+            createRequest("https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Frss.xml")
+                //преобразовываем полученную строку в объект Feed
+                .map { Gson().fromJson(it, Feed::class.java) }
+                //теперь нужно выбрать в каком потоке будем исполнять, а в каком потоке получать результат
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 
-            //запускаем наш поток где первым передаем лямда ф-ию, в которой получим результат от onNext
-            //а вторая лямбда ф-ия обработка исключений
-            //записываем результат в переменную request и используем в колбеке onDestroy. Это нужно для предотврощения потери памяти
-            request = o.subscribe({
-                showLinearLayout(it.items)
-               for (item in it.items) {
-                   Log.w("test", "title:${item.title}")
-               }
-
-            }, {
-                //тут обрабатываем ошибки
-                Log.e("test", "", it)
-
-            })
+        //запускаем наш поток где первым передаем лямда ф-ию, в которой получим результат от onNext
+        //а вторая лямбда ф-ия обработка исключений
+        //записываем результат в переменную request и используем в колбеке onDestroy. Это нужно для предотврощения потери памяти
+        request = o.subscribe({
+            showLinearLayout(it.items)
+            for (item in it.items) {
+                Log.w("test", "title:${item.title}")
+            }
+        }, {
+            //тут обрабатываем ошибки
+            Log.e("test", "", it)
+        })
 
 
-            //Классический метод создания потока (так делать не надо).Создаем поток threat
+        //Классический метод создания потока (так делать не надо).Создаем поток threat
 //            val t = object : Thread() {
 //                //!!посмотреть run
 //                override fun run() {
@@ -121,7 +119,7 @@ class MainActivity : AppCompatActivity() {
 
     //функция для самого простого отображения элементов массива Feed полученного из инет запроса
     fun showLinearLayout(feedList: ArrayList<FeedItem>) {
-        //сначала берем контекст в качестве сомого активити и берем из него инфлейтер(!!!посмотеть)
+        //сначала берем контекст в качестве самого активити и берем из него инфлейтер(!!!посмотеть)
         val inflater = layoutInflater
         for (f in feedList) {
             // и этому инфлейтеру сказать inflate layout list_item vList
@@ -129,7 +127,7 @@ class MainActivity : AppCompatActivity() {
             val vTitle = view.findViewById<TextView>(R.id.item_title)
             //в полученный textview задаем текст
             vTitle.text = f.title
-            //добавляем его в гр=лавную разметку vList
+            //добавляем его в главную разметку vList
             vList.addView(view)
         }
     }
