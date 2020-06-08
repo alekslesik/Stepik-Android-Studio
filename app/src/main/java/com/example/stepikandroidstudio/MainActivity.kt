@@ -5,7 +5,12 @@ import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
 import android.widget.LinearLayout
+import android.widget.ListView
 import android.widget.TextView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -43,6 +48,7 @@ class MainActivity : AppCompatActivity() {
 
     //пееременная для простого отображения данных из массива
     lateinit var vList: LinearLayout
+    lateinit var vListView: ListView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +59,8 @@ class MainActivity : AppCompatActivity() {
         //параметр - имя класса(тип), id из разметки
         //результат работы ф - ссылка на класс TextView
 //        vText = findViewById<TextView>(R.id.act1_text)
-        vList = findViewById<LinearLayout>(R.id.act1_list)
+//        vList = findViewById<LinearLayout>(R.id.act1_list)
+        vListView = findViewById<ListView>(R.id.act1_listView)
         //задать цвет текста
 //        vText.setTextColor(0xFFFF0000.toInt())
         //установить перехватчик нажатий на элемент
@@ -88,7 +95,8 @@ class MainActivity : AppCompatActivity() {
         //а вторая лямбда ф-ия обработка исключений
         //записываем результат в переменную request и используем в колбеке onDestroy. Это нужно для предотврощения потери памяти
         request = o.subscribe({
-            showLinearLayout(it.items)
+//            showLinearLayout(it.items)
+            showListView(it.items)
             for (item in it.items) {
                 Log.w("test", "title:${item.title}")
             }
@@ -119,7 +127,7 @@ class MainActivity : AppCompatActivity() {
 
     //функция для самого простого отображения элементов массива Feed полученного из инет запроса
     fun showLinearLayout(feedList: ArrayList<FeedItem>) {
-        //сначала берем контекст в качестве самого активити и берем из него инфлейтер(!!!посмотеть)
+        //сначала берем контекст в качестве самого активити и берем из него инфлейтер(TODO посмотеть)
         val inflater = layoutInflater
         for (f in feedList) {
             // и этому инфлейтеру сказать inflate layout list_item vList
@@ -130,6 +138,46 @@ class MainActivity : AppCompatActivity() {
             //добавляем его в главную разметку vList
             vList.addView(view)
         }
+    }
+
+    fun showListView(feedList: ArrayList<FeedItem>) {
+        vListView.adapter = Adapter(feedList)
+    }
+
+    //для отображения ListView создаем класс Adapter наследуемый TODO BaseAdapter
+    class Adapter(val items: ArrayList<FeedItem>) : BaseAdapter() {
+        //создаем вьюшку где будет отображаться сам элемент
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+//            parent это какая либо вьюшка с контекстом
+
+            val inflater = LayoutInflater.from(parent!!.context)
+            val view = convertView ?: inflater.inflate(R.layout.list_item, parent, false)
+            val vTitle = view.findViewById<TextView>(R.id.item_title)
+            //в полученный textview задаем текст
+
+            val item = getItem(position) as FeedItem
+
+            vTitle.text = item.title
+
+            //возвращаем созданный вью
+            return view
+        }
+
+        //возвратить сам элемент
+        override fun getItem(position: Int): Any {
+            return items[position]
+        }
+
+        //идентификатор элемента
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
+
+        //возвращаем количество элементов
+        override fun getCount(): Int {
+            return items.size
+        }
+
     }
 
     //колбек для возвращаемых данных
