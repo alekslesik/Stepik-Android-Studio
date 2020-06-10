@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
     //создаем переменную для потоков reactivex
     var request: Disposable? = null
 
-    //делаем переменную класса посмотреть lateinit!!!
+    //делаем переменную класса
     lateinit var vText: TextView
 
     //пееременная для простого отображения данных из массива
@@ -59,8 +59,8 @@ class MainActivity : AppCompatActivity() {
         //параметр - имя класса(тип), id из разметки
         //результат работы ф - ссылка на класс TextView
 //        vText = findViewById<TextView>(R.id.act1_text)
-//        vList = findViewById<LinearLayout>(R.id.act1_list)
-        vListView = findViewById<ListView>(R.id.act1_listView)
+        vList = findViewById<LinearLayout>(R.id.act1_list)
+        //vListView = findViewById<ListView>(R.id.act1_listView)
         //задать цвет текста
 //        vText.setTextColor(0xFFFF0000.toInt())
         //установить перехватчик нажатий на элемент
@@ -85,8 +85,9 @@ class MainActivity : AppCompatActivity() {
         //оператор flatMap позволяет создать последюущий поток со своим Observable.create
         //оператор zipWith позволяет делать параллельный поток
         val o =
-            createRequest("https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Frss.xml")
-                //преобразовываем полученную строку в объект Feed
+//            createRequest("https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Frss.xml")
+            createRequest("https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Frussian%2Ffeatures-50983593%2Frss.xml")
+                //преобразовываем полученную json строку в объект Feed
                 .map { Gson().fromJson(it, Feed::class.java) }
                 //теперь нужно выбрать в каком потоке будем исполнять, а в каком потоке получать результат
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
@@ -95,10 +96,11 @@ class MainActivity : AppCompatActivity() {
         //а вторая лямбда ф-ия обработка исключений
         //записываем результат в переменную request и используем в колбеке onDestroy. Это нужно для предотврощения потери памяти
         request = o.subscribe({
-//            showLinearLayout(it.items)
-            showListView(it.items)
+            showLinearLayout(it.items)
+//            showListView(it.items)
             for (item in it.items) {
                 Log.w("test", "title:${item.title}")
+                Log.w("test", "link:${item.link}")
             }
         }, {
             //тут обрабатываем ошибки
@@ -127,8 +129,8 @@ class MainActivity : AppCompatActivity() {
 
     //функция для самого простого отображения элементов массива Feed полученного из инет запроса
     fun showLinearLayout(feedList: ArrayList<FeedItem>) {
-        //сначала берем контекст в качестве самого активити и берем из него инфлейтер(TODO посмотеть)
-        val inflater = layoutInflater
+        //сначала берем контекст в качестве самого активити и берем из него инфлейтер
+        val inflater = layoutInflater //TODO посмотреть layoutInflater
         for (f in feedList) {
             // и этому инфлейтеру сказать inflate layout list_item vList
             val view = inflater.inflate(R.layout.list_item, vList, false)
