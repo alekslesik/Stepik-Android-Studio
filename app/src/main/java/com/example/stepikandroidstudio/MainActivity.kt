@@ -59,8 +59,8 @@ class MainActivity : AppCompatActivity() {
         //параметр - имя класса(тип), id из разметки
         //результат работы ф - ссылка на класс TextView
 //        vText = findViewById<TextView>(R.id.act1_text)
-        vList = findViewById<LinearLayout>(R.id.act1_list)
-        //vListView = findViewById<ListView>(R.id.act1_listView)
+//        vList = findViewById<LinearLayout>(R.id.act1_list)
+        vListView = findViewById<ListView>(R.id.act1_listView)
         //задать цвет текста
 //        vText.setTextColor(0xFFFF0000.toInt())
         //установить перехватчик нажатий на элемент
@@ -85,7 +85,8 @@ class MainActivity : AppCompatActivity() {
         //оператор flatMap позволяет создать последюущий поток со своим Observable.create
         //оператор zipWith позволяет делать параллельный поток
         val o =
-//            createRequest("https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Frss.xml")
+        //создаем реквесть на rss канал и преобразуем его в json через API
+            //https://rss2json.com/#rss_url=https%3A%2F%2Fwww.reddit.com%2Fr%2Fgifs.rss
             createRequest("https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Ffeeds.bbci.co.uk%2Frussian%2Ffeatures-50983593%2Frss.xml")
                 //преобразовываем полученную json строку в объект Feed
                 .map { Gson().fromJson(it, Feed::class.java) }
@@ -96,8 +97,8 @@ class MainActivity : AppCompatActivity() {
         //а вторая лямбда ф-ия обработка исключений
         //записываем результат в переменную request и используем в колбеке onDestroy. Это нужно для предотврощения потери памяти
         request = o.subscribe({
-            showLinearLayout(it.items)
-//            showListView(it.items)
+//            showLinearLayout(it.items)
+            showListView(it.items)
             for (item in it.items) {
                 Log.w("test", "title:${item.title}")
                 Log.w("test", "link:${item.link}")
@@ -130,6 +131,7 @@ class MainActivity : AppCompatActivity() {
     //функция для самого простого отображения элементов массива Feed полученного из инет запроса
     fun showLinearLayout(feedList: ArrayList<FeedItem>) {
         //сначала берем контекст в качестве самого активити и берем из него инфлейтер
+        //http://developer.alexanderklimov.ru/android/theory/layoutinflater.php
         val inflater = layoutInflater //TODO посмотреть layoutInflater
         for (f in feedList) {
             // и этому инфлейтеру сказать inflate layout list_item vList
@@ -143,6 +145,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showListView(feedList: ArrayList<FeedItem>) {
+        //создаем адаптер (http://developer.alexanderklimov.ru/android/theory/adapters.php)
         vListView.adapter = Adapter(feedList)
     }
 
@@ -150,17 +153,18 @@ class MainActivity : AppCompatActivity() {
     class Adapter(val items: ArrayList<FeedItem>) : BaseAdapter() {
         //создаем вьюшку где будет отображаться сам элемент
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-//            parent это какая либо вьюшка с контекстом
-
+            // parent это какая либо вьюшка с контекстом
+            //сам адаптер ничего не знает о активити, поэтому мы не можем напрямую сделать inflate
+            //но контекст есть в параметре parent, берем из него контекст
             val inflater = LayoutInflater.from(parent!!.context)
             val view = convertView ?: inflater.inflate(R.layout.list_item, parent, false)
             val vTitle = view.findViewById<TextView>(R.id.item_title)
-            //в полученный textview задаем текст
 
+            //в полученный textview задаем текст
             val item = getItem(position) as FeedItem
 
             vTitle.text = item.title
-
+            Log.w("position, ", "$position")
             //возвращаем созданный вью
             return view
         }
