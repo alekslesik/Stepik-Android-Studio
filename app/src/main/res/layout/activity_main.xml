@@ -7,12 +7,20 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-<!--    более оптимальный способ отображения информации из инета с большим количеством данных-->
-
-    <ListView
-        android:id="@+id/act1_listView"
+<!--    самый оптимальный способ отображения через RecyclerView-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/act1_recView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+
+
+<!--    более оптимальный способ отображения информации с помощью ListView из инета с большим количеством данных-->
+
+<!--    <ListView-->
+<!--        android:id="@+id/act1_listView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"/>-->
 
 
     <!--    самый простой способ отображения данных из массива до 10ти элементов прямо в разметке-->

@@ -12,6 +12,7 @@ import android.widget.BaseAdapter
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     //пееременная для простого отображения данных из массива
     lateinit var vList: LinearLayout
     lateinit var vListView: ListView
+    lateinit var vRecView: RecyclerView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +62,8 @@ class MainActivity : AppCompatActivity() {
         //результат работы ф - ссылка на класс TextView
 //        vText = findViewById<TextView>(R.id.act1_text)
 //        vList = findViewById<LinearLayout>(R.id.act1_list)
-        vListView = findViewById<ListView>(R.id.act1_listView)
+        vRecView = findViewById<RecyclerView>(R.id.act1_recView)
+//        vListView = findViewById<ListView>(R.id.act1_listView)
         //задать цвет текста
 //        vText.setTextColor(0xFFFF0000.toInt())
         //установить перехватчик нажатий на элемент
@@ -167,6 +170,27 @@ class MainActivity : AppCompatActivity() {
             Log.w("position, ", "$position")
             //возвращаем созданный вью
             return view
+        }
+
+//        адаптер для RecyclerView, наследуется от RecyclerView.Adapter<> в параметр которого нужно
+//        нужно указать имя еще одного класса который будет служить контейнером для UI TODO посмотреть
+        class RecAdapter:RecyclerView.Adapter<RecHolder>(){
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecHolder {
+        TODO("Not yet implemented")
+    }
+
+    override fun getItemCount(): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun onBindViewHolder(holder: RecHolder, position: Int) {
+        TODO("Not yet implemented")
+    }
+
+}
+//        в парасетр передаем вьюшку
+        class RecHolder(view: View):RecyclerView.ViewHolder(view) {
+
         }
 
         //возвратить сам элемент
