@@ -12,6 +12,7 @@ import android.widget.BaseAdapter
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -101,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         //записываем результат в переменную request и используем в колбеке onDestroy. Это нужно для предотврощения потери памяти
         request = o.subscribe({
 //            showLinearLayout(it.items)
-            showListView(it.items)
+            showRecview(it.items)
             for (item in it.items) {
                 Log.w("test", "title:${item.title}")
                 Log.w("test", "link:${item.link}")
@@ -151,6 +152,12 @@ class MainActivity : AppCompatActivity() {
         //создаем адаптер (http://developer.alexanderklimov.ru/android/theory/adapters.php)
         vListView.adapter = Adapter(feedList)
     }
+    fun showRecview(feedList: ArrayList<FeedItem>) {
+        vRecView.adapter = Adapter.RecAdapter(feedList)
+        //recyclerview требует от нас конкретного способа отображения, для этого нужно создать
+        //LayoutManager через TODO LinearLayoutManager
+        vRecView.layoutManager = LinearLayoutManager(this)
+    }
 
     //для отображения ListView создаем класс Adapter наследуемый TODO BaseAdapter
     class Adapter(val items: ArrayList<FeedItem>) : BaseAdapter() {
@@ -172,25 +179,33 @@ class MainActivity : AppCompatActivity() {
             return view
         }
 
-//        адаптер для RecyclerView, наследуется от RecyclerView.Adapter<> в параметр которого нужно
-//        нужно указать имя еще одного класса который будет служить контейнером для UI TODO посмотреть
-        class RecAdapter:RecyclerView.Adapter<RecHolder>(){
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecHolder {
-        TODO("Not yet implemented")
-    }
+        //адаптер для RecyclerView, наследуется от RecyclerView.Adapter<> в параметр которого
+        //нужно указать имя еще одного класса который будет служить контейнером для UI TODO посмотреть
+        class RecAdapter(val items: ArrayList<FeedItem>) : RecyclerView.Adapter<RecHolder>() {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecHolder {
+                //в первом коллбеке мы должны создать холдер, передаем в него view
+                val inflater = LayoutInflater.from(parent!!.context)
+                val view = inflater.inflate(R.layout.list_item, parent, false)
+                return RecHolder(view)
+            }
+            override fun getItemCount(): Int {
+                return items.size
+            }
+            override fun onBindViewHolder(holder: RecHolder, position: Int) {
+                //тут делаем заполнение представленнми данными холдера
+                val item = items[position]
+                //так как view завернут в холдер то утсановку текта делаем через него
+                //затем сказать холдеру
+                holder.bind(item)
+            }
+        }
 
-    override fun getItemCount(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun onBindViewHolder(holder: RecHolder, position: Int) {
-        TODO("Not yet implemented")
-    }
-
-}
-//        в парасетр передаем вьюшку
-        class RecHolder(view: View):RecyclerView.ViewHolder(view) {
-
+        //в параметр передаем вьюшку
+        class RecHolder(view: View) : RecyclerView.ViewHolder(view) {
+            fun bind(item: FeedItem) {
+                val vTitle = itemView.findViewById<TextView>(R.id.item_title)
+                vTitle.text = item.title
+            }
         }
 
         //возвратить сам элемент
